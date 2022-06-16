@@ -3,6 +3,7 @@
 /client/node_modules/
 
 # dependencies
+/.idea
 /client/package-lock.json
 /client/node_modules
 /client/.pnp
