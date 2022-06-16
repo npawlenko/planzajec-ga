@@ -4,8 +4,6 @@
 
 # dependencies
 /client/package-lock.json
-/client/public/assets/css/bootstrap
-/client/public/assets/icon
 /client/node_modules
 /client/.pnp
 /client/.pnp.js
