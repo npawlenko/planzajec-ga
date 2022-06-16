@@ -80,6 +80,7 @@ app.post('/generate', (req, res) => {
     validationSchema.validate(req.body);
 
     // Prepare data
+    // TODO: Objectize
     const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
     const dayStart = days.indexOf(req.body["dayStart"]);
@@ -94,11 +95,11 @@ app.post('/generate', (req, res) => {
         workingDays = days.splice(dayStart, dayEnd); // dayStart-dayEnd
 
     const data = {
-        groups: data["groups"],
-        subjects: data["subjects"],
-        teachers: data["teachers"],
+        groups: req.body["groups"],
+        subjects: req.body["subjects"],
+        teachers: req.body["teachers"],
         day: workingDays,
-        time: data["time"]
+        time: req.body["time"]
     };
 
     // Algorithm
