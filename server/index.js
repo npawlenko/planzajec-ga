@@ -63,9 +63,17 @@ app.post('/generate', (req, res) => {
     // Validation
     const validationSchema = validation.object({
         dayStart: validation.string()
+            .valid([
+                'mon', 'tue', 'wed',
+                'thu', 'fri', 'sat', 'sun'
+            ])
             .required(),
 
         dayEnd: validation.string()
+            .valid([
+                'mon', 'tue', 'wed',
+                'thu', 'fri', 'sat', 'sun'
+            ])
             .required(),
 
         groups: validation.array()
@@ -77,7 +85,18 @@ app.post('/generate', (req, res) => {
         teachers: validation.array()
             .required()
     });
-    validationSchema.validate(req.body);
+    const validation = validationSchema.validate(req.body);
+
+    if(validation.error !== null) // Invalid input
+    {
+        response = {
+          "status": false,
+          "message": ""
+        };
+        res.end(JSON.stringify(response));
+        return;
+    }
+
 
     // Prepare data
     // TODO: Objectize
