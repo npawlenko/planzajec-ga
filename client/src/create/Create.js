@@ -31,11 +31,11 @@ class Create extends Component {
         }
 
         const response = this.postData(e.target.action, data);
+
+        //TODO: display response
     }
 
     async postData(url = "", data = {}) {
-        console.log(url);
-
         const options = {
             mode: "cors",
             method: "POST",
@@ -45,8 +45,6 @@ class Create extends Component {
             },
             body: JSON.stringify(data)
         };
-
-        console.log(data);
 
         const rawResponse = await fetch(url, options);
         return await rawResponse.json();
@@ -63,7 +61,7 @@ class Create extends Component {
                     <form method={"post"} action={"http://localhost:8080/generate"} onSubmit={this.submitHandler} ref={this.form}>
                         <div className={"row"}>
                             <div className={"col-12 col-lg-6"}>
-                                <FormSection name={"Dni i godziny robocze"}>
+                                <FormSection name={"Dni robocze"}>
                                     <label className={"me-3"} htmlFor={"dayStart"}>Od</label>
                                     <select className={"form-control d-inline-block mb-2"} id={"dayStart"} name={"dayStart"} defaultValue={"mon"}>
                                         <option value={"mon"}>Poniedziałek</option>
@@ -87,6 +85,10 @@ class Create extends Component {
                                         <option value={"sat"}>Sobota</option>
                                         <option value={"sun"}>Niedziela</option>
                                     </select>
+                                </FormSection>
+
+                                <FormSection name={"Godziny zajęć"}>
+
                                 </FormSection>
                             </div>
 
