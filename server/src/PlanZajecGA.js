@@ -61,7 +61,7 @@ class PlanZajecGA {
         // function to make a change to your
         // phenotype
 
-
+        if(chanceOf(0.3)) {
             resultPhenotype = {
                 day: pickRandom(this.data.days),
                 time: pickRandom(this.data.times),
@@ -69,8 +69,7 @@ class PlanZajecGA {
                 subject: pickRandom(this.data.subjects),
                 group: pickRandom(this.data.groups)
             }
-
-
+        }
 
         return resultPhenotype;
     }
@@ -79,21 +78,24 @@ class PlanZajecGA {
         let result1 = cloneJSON(phenotypeA), result2 = cloneJSON(phenotypeB);
         // use phenotypeA and B to create phenotype result 1 and 2
 
-        result1 = {
-            day: phenotypeA.day,
-            time: phenotypeB.time,
-            teacher: phenotypeA.teacher,
-            subject: phenotypeB.subject,
-            group: phenotypeB.group
-        };
+        if(chanceOf(0.9)) {
+            result1 = {
+                day: phenotypeA.day,
+                time: phenotypeB.time,
+                teacher: phenotypeA.teacher,
+                subject: phenotypeB.subject,
+                group: phenotypeB.group
+            };
 
-        result2 = {
-            day: phenotypeB.day,
-            time: phenotypeA.time,
-            teacher: phenotypeB.teacher,
-            subject: phenotypeA.subject,
-            group: phenotypeA.group
-        };
+            result2 = {
+                day: phenotypeB.day,
+                time: phenotypeA.time,
+                teacher: phenotypeB.teacher,
+                subject: phenotypeA.subject,
+                group: phenotypeA.group
+            };
+        }
+
 
         return [result1, result2];
     }
@@ -147,7 +149,7 @@ class PlanZajecGA {
 
 
     evolve() {
-        for(let loop=1 ; loop<=3000; loop++) {
+        for(let loop=1 ; loop<=1000; loop++) {
             this.ga.evolve(); //ewolucja
         }
     }
