@@ -75,7 +75,7 @@ class InputList extends Component {
                     <ul className={"row ps-0"}>
                         {
                             this.state.data.map((entry, index) => (
-                                <li className={"inputlist-element col-4"} data-id={index} onClick={this.deleteHandler}>{entry}</li>
+                                <li className={"inputlist-element col-4"} key={index} data-id={index} onClick={this.deleteHandler}>{entry}</li>
                             ))
                         }
                     </ul>

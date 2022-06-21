@@ -3,12 +3,15 @@ import Navigation from "../Navigation";
 import Footer from "../Footer";
 import FormSection from "./FormSection";
 import InputList from "./InputList";
+import TimeRangeList from "./TimeRangeList";
+import Alert from "../Alert";
 
 class Create extends Component {
     constructor(props) {
         super(props);
 
         this.form = React.createRef();
+        this.alert = React.createRef();
         this.submitHandler = this.submitHandler.bind(this);
     }
 
@@ -32,7 +35,14 @@ class Create extends Component {
 
         const response = this.postData(e.target.action, data);
 
-        //TODO: display response
+        if(!response.status) {
+            this.alert.current.content = `Wystąpił błąd podczas generowania rozkładu zajęć: ${response.error}`;
+            this.alert.current.type = Alert.Type.Fail;
+            this.alert.current.visible = true;
+        }
+        else {
+            console.log(response);
+        }
     }
 
     async postData(url = "", data = {}) {
@@ -46,13 +56,24 @@ class Create extends Component {
             body: JSON.stringify(data)
         };
 
-        const rawResponse = await fetch(url, options);
-        return await rawResponse.json();
+        console.log(`Sending request to ${url}, body: ${data}`);
+        await fetch(url, options)
+            .then(response => {
+                console.log(`Received response: ${response.json()}`);
+                return response.json();
+            })
+            .catch(() => {
+                console.error(`Could not connect to ${url}`);
+                this.alert.current.content = `Nie można połączyć się z serwerem. Spróbuj ponownie później.`;
+                this.alert.current.type = Alert.Type.Fail;
+                this.alert.current.visible = true;
+            });
     }
 
 
     render() {
         return [
+            <Alert ref={this.alert}/>,
             <header>
                 <Navigation />
             </header>,
@@ -86,15 +107,11 @@ class Create extends Component {
                                         <option value={"sun"}>Niedziela</option>
                                     </select>
                                 </FormSection>
-
-                                <FormSection name={"Godziny zajęć"}>
-
-                                </FormSection>
                             </div>
 
                             <div className={"col-12 col-lg-6"}>
-                                <FormSection name={"Przedmioty"}>
-                                    <InputList name={"subjects"} type={"text"} placeholder={"Dodaj przedmiot"} />
+                                <FormSection name={"Godziny zajęć"}>
+                                    <TimeRangeList name={"time"}></TimeRangeList>
                                 </FormSection>
                             </div>
                         </div>
@@ -109,6 +126,14 @@ class Create extends Component {
                             <div className={"col-12 col-lg-6"}>
                                 <FormSection name={"Nauczyciele"}>
                                     <InputList name={"teachers"} type={"text"} placeholder={"Dodaj nauczyciela"} />
+                                </FormSection>
+                            </div>
+                        </div>
+
+                        <div className={"row"}>
+                            <div className={"col-12 col-lg-6"}>
+                                <FormSection name={"Przedmioty"}>
+                                    <InputList name={"subjects"} type={"text"} placeholder={"Dodaj przedmiot"} />
                                 </FormSection>
                             </div>
                         </div>
