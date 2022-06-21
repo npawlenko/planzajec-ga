@@ -14,7 +14,7 @@ function pickRandom(arr) {
 }
 
 class PlanZajecGA {
-    constructor(data) {
+    constructor(data) { //TODO: sort time
         this.data = data;
 
         let config = {
@@ -22,8 +22,8 @@ class PlanZajecGA {
             crossoverFunction: this.crossover,
             fitnessFunction: this.fitness,
             doesABeatBFunction: this.competition,
-            population: this.generatePopulation(50),
-            populationSize: 200
+            population: [ this.generatePhenotype() ],
+            populationSize: 500
         }
 
         this.ga = GA(config);
@@ -41,17 +41,6 @@ class PlanZajecGA {
 
         return phenotype;
     }
-
-    generatePopulation(size) {
-        let population = [];
-
-        for(let i=0; i<size; i++) {
-            population.push(this.generatePhenotype());
-        }
-
-        return population;
-    }
-
 
     // Genethic algorithm functions
     mutation(oldPhenotype) {
@@ -74,7 +63,6 @@ class PlanZajecGA {
     crossover(phenotypeA, phenotypeB) {
         let result1 = {}, result2 = {};
         // use phenotypeA and B to create phenotype result 1 and 2
-
 
         result1 = {
             day: phenotypeA.day,
@@ -100,10 +88,36 @@ class PlanZajecGA {
         // use phenotype and possibly some other information
         // to determine the fitness number.  Higher is better, lower is worse.
 
+        const population = this.ga.population();
+
         // czy przed i po elemencie nastepuja zajecia (+)
+        const times = this.data.times;
+
+        const time = phenotype.time;
+        const index = times.indexOf(time);
+        const day = phenotype.day;
+
+        //godzina-1, godzina+1
+        const neighbours = population.find(
+            comparedElement =>
+                comparedElement.day === day
+                && Math.abs(index-times.indexOf(comparedElement.time)) === 1
+        );
+
+        if(neighbours.length > 2)
+            fitness += 2/neighbours.length;
+        else
+            fitness += neighbours.length;
+
 
 
         // czy wystepuja kolizje (-)
+        const collisions = population.find(
+            comparedElement =>
+                comparedElement.day === day
+                && index === times.indexOf(comparedElement.time)
+        );
+        fitness -= collisions.length-1;
 
 
         return fitness;
@@ -112,6 +126,19 @@ class PlanZajecGA {
     competition(phenotypeA, phenotypeB) {
         // im wyzszy fitness tym bardziej przystosowany
         return this.fitness(phenotypeA) >= this.fitness(phenotypeB)
+    }
+
+
+
+
+    evolve() {
+        for(let loop=1 ; loop<=1000 && !finished; i++) {
+            this.ga.evolve(); //ewolucja
+            if(loop % 50 == 0) { // kazde 50 iteracji
+                console.log("Completed " + loop + " evolutions : ");
+                console.log(this.ga.best());
+            }
+        }
     }
 }
 
