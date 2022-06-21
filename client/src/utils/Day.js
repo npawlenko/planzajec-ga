@@ -13,7 +13,8 @@ class Day {
     }
 
     constructor(day) {
-
+        this.day = day;
+        this.dayName = Day.Name[day];
     }
 }
 

@@ -15,11 +15,14 @@ const server = http.createServer(app);
 
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 const publicDir = path.resolve("../client/build");
+
 
 const Joi = require("joi");
 const Day = require("../client/src/utils/Day");
 const PlanZajecGA = require("./src/PlanZajecGA");
+const Schedule = require("./src/Schedule");
 
 // Setup
 app.use( (req, res, next) => {
@@ -33,6 +36,28 @@ app.use(cors());
 app.use(express.static(publicDir));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
+
+
+
+app.get("/schedule/:filename", (req, res) => {
+    const fileName = req.params.filename;
+    const filePath = path.resolve("./tmp", fileName+".pdf");
+
+    if(fs.existsSync(filePath)) {
+        const stat = fs.statSync(filePath);
+
+        res.setHeader('Content-Length', stat.size);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=Rozklad_zajec.pdf');
+        fs.createReadStream(filePath).pipe(res);
+        return;
+    }
+    else {
+        res.status(500);
+        res.send('File not found');
+    }
+});
 
 app.get('*', (req, res) => {
     if(debug)
@@ -110,21 +135,32 @@ app.post('/generate', (req, res) => {
         workingDays = days.splice(dayStart, dayEnd+1); // dayStart-dayEnd
 
     const data = {
-        groups: req.body["groups"],
-        subjects: req.body["subjects"],
-        teachers: req.body["teachers"],
-        "days": workingDays,
+        groups: req.body.groups,
+        subjects: req.body.subjects,
+        teachers: req.body.teachers,
+        days: workingDays,
         times: req.body["time"]
     };
 
     // Algorithm
-    const schedule = new PlanZajecGA(data);
+    const scheduleGA = new PlanZajecGA(data);
+    scheduleGA.evolve();
 
+    const schedule = new Schedule(data, scheduleGA.ga.population());
+    const pdf = schedule.render();
+    if(pdf === undefined) {
+        result = {
+          status: false,
+          error: "Nie udało się wygenerować planu zajęć. Spróbuj ponownie."
+        };
+        res.end(response);
+        return;
+    }
 
     // Response
     response = {
         status: true,
-        url: "http://localhost:8080/"
+        url: "http://localhost:8080/schedule/"+pdf
     };
 
     res.end(JSON.stringify(response));

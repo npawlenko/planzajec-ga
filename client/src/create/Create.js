@@ -45,7 +45,8 @@ class Create extends Component {
                     this.alert.current.type = Alert.Type.Fail;
                     this.alert.current.visible = true;
                 } else {
-                    console.log(data);
+                    window.open(data.url, '_blank');
+                    window.location.reload();
                 }
             })
             .catch(err => {

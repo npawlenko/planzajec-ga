@@ -27,3 +27,4 @@
 /client/yarn-error.log*
 
 /server/package-lock.json
+/server/tmp

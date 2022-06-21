@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rozkład zajęć</title>
+
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        td, th {
+            padding:10px;
+            border:1px solid #000;
+        }
+        .day {
+            writing-mode: vertical-lr;
+            text-orientation: sideways;
+            transform: rotate(180deg);
+            padding:10px 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <% for(let i=0; i<data.groups.length; i++) { %>
+                <th><%= data.groups[i] %></th>
+                <% } %>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% for(let i=0; i<data.days.length; i++) { %>
+            <%
+                const dayKey = data.days[i];
+                const dayName = day.Name[dayKey];
+            %>
+            <th rowspan="<%= data.times.length+1 %>" class="day"><%= dayName %></th>
+
+                <% for(let i=0; i<data.times.length; i++) { %>
+                <%
+                    const time = data.times[i];
+                    const timeStr = time.start+"-"+time.end;
+                %>
+                <tr>
+                    <th><%= timeStr %></th>
+                    <%  for(let j=0; j<data.groups.length; j++) { %>
+                    <%
+                        const group = data.groups[j];
+                        const found = population.find((element) => element.day === dayKey && element.time.start === time.start && element.time.end === time.end && element.group == group)
+                    %>
+                        <% if(found === undefined) { %>
+                        <td></td>
+                        <% } else { %>
+                        <td>
+                            <%= found.subject %>
+                            <br/>
+                            <%= found.teacher %>
+                        </td>
+                        <% } %>
+                    <% } %>
+                </tr>
+                <% } %>
+            <% } %>
+        </tbody>
+    </table>
+
+</body>
+</html>

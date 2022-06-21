@@ -13,8 +13,18 @@ function pickRandom(arr) {
     return arr[index];
 }
 
+function chanceOf(chance) {
+    return Math.random() < chance;
+}
+
+function cloneJSON( item ) {
+    return JSON.parse ( JSON.stringify ( item ) )
+}
+
+
+
 class PlanZajecGA {
-    constructor(data) { //TODO: sort time
+    constructor(data) {
         this.data = data;
 
         let config = {
@@ -46,29 +56,32 @@ class PlanZajecGA {
 
     // Genethic algorithm functions
     mutation(oldPhenotype) {
-        let resultPhenotype = {};
+        let resultPhenotype = cloneJSON(oldPhenotype);
         // use oldPhenotype and some random
         // function to make a change to your
         // phenotype
 
-        resultPhenotype = {
-            day: pickRandom(this.data.days),
-            time: pickRandom(this.data.times),
-            teacher: pickRandom(this.data.teachers),
-            subject: oldPhenotype.subject,
-            group: oldPhenotype.group
-        }
+
+            resultPhenotype = {
+                day: pickRandom(this.data.days),
+                time: pickRandom(this.data.times),
+                teacher: pickRandom(this.data.teachers),
+                subject: pickRandom(this.data.subjects),
+                group: pickRandom(this.data.groups)
+            }
+
+
 
         return resultPhenotype;
     }
 
     crossover(phenotypeA, phenotypeB) {
-        let result1 = {}, result2 = {};
+        let result1 = cloneJSON(phenotypeA), result2 = cloneJSON(phenotypeB);
         // use phenotypeA and B to create phenotype result 1 and 2
 
         result1 = {
             day: phenotypeA.day,
-            time: phenotypeA.time,
+            time: phenotypeB.time,
             teacher: phenotypeA.teacher,
             subject: phenotypeB.subject,
             group: phenotypeB.group
@@ -76,7 +89,7 @@ class PlanZajecGA {
 
         result2 = {
             day: phenotypeB.day,
-            time: phenotypeB.time,
+            time: phenotypeA.time,
             teacher: phenotypeB.teacher,
             subject: phenotypeA.subject,
             group: phenotypeA.group
@@ -97,11 +110,13 @@ class PlanZajecGA {
         const time = phenotype.time;
         const index = times.indexOf(time);
         const day = phenotype.day;
+        const group = phenotype.group;
 
         //godzina-1, godzina+1
-        const neighbours = pop.find(
+        const neighbours = pop.filter(
             comparedElement =>
-                comparedElement.day === day
+                comparedElement.group === group
+                && comparedElement.day === day
                 && Math.abs(index-times.indexOf(comparedElement.time)) === 1
         );
 
@@ -115,9 +130,10 @@ class PlanZajecGA {
 
 
         // czy wystepuja kolizje (-)
-        const collisions = pop.find(
+        const collisions = pop.filter(
             comparedElement =>
-                comparedElement.day === day
+                comparedElement.group === group
+                && comparedElement.day === day
                 && index === times.indexOf(comparedElement.time)
         );
         if(collisions === undefined)
@@ -125,14 +141,13 @@ class PlanZajecGA {
         else
             fitness -= collisions.length-1;
 
-
         return fitness;
     }
 
 
 
     evolve() {
-        for(let loop=1 ; loop<=1000; loop++) {
+        for(let loop=1 ; loop<=3000; loop++) {
             this.ga.evolve(); //ewolucja
         }
     }
