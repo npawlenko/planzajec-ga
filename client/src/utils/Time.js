@@ -4,6 +4,10 @@ class Time {
         this.time = timeString;
     }
 
+    toJSON() {
+        return this.time;
+    }
+
     getDate() {
         const today = new Date();
         today.setHours(this.hour, this.minute, 0, 0);

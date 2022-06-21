@@ -15,34 +15,47 @@ class Create extends Component {
         this.submitHandler = this.submitHandler.bind(this);
     }
 
-    submitHandler(e) {
+    async submitHandler(e) {
         e.preventDefault();
 
         let data = {};
 
         const elements = this.form.current.elements;
-        for(let i=0; i<elements.length; i++) {
+        for (let i = 0; i < elements.length; i++) {
             const el = elements[i];
-            if(el.dataset.exclude !== undefined)
+            if (el.dataset.exclude !== undefined)
+                continue;
+            if (el.name === "")
                 continue;
 
-
-            if(el.dataset.json !== undefined)
+            if (el.dataset.json !== undefined)
                 data[el.name] = JSON.parse(el.value);
             else
                 data[el.name] = el.value;
         }
 
-        const response = this.postData(e.target.action, data);
 
-        if(!response.status) {
-            this.alert.current.content = `Wystąpił błąd podczas generowania rozkładu zajęć: ${response.error}`;
-            this.alert.current.type = Alert.Type.Fail;
-            this.alert.current.visible = true;
-        }
-        else {
-            console.log(response);
-        }
+        await this.postData(e.target.action, data)
+            .then(response => response.json())
+            .then(data => {
+                console.log(`Received response: ${JSON.stringify(data)}`);
+
+                if (!data.status) {
+                    this.alert.current.content = `Wystąpił błąd podczas generowania rozkładu zajęć: ${data.error}`;
+                    this.alert.current.type = Alert.Type.Fail;
+                    this.alert.current.visible = true;
+                } else {
+                    console.log(data);
+                }
+            })
+            .catch(err => {
+                if(err !== undefined) {
+                    console.error(`Could not fetch: ${err}`);
+                    this.alert.current.content = `Nie można połączyć się z serwerem. Spróbuj ponownie później.`;
+                    this.alert.current.type = Alert.Type.Fail;
+                    this.alert.current.visible = true;
+                }
+            });
     }
 
     async postData(url = "", data = {}) {
@@ -56,18 +69,8 @@ class Create extends Component {
             body: JSON.stringify(data)
         };
 
-        console.log(`Sending request to ${url}, body: ${data}`);
-        await fetch(url, options)
-            .then(response => {
-                console.log(`Received response: ${response.json()}`);
-                return response.json();
-            })
-            .catch(() => {
-                console.error(`Could not connect to ${url}`);
-                this.alert.current.content = `Nie można połączyć się z serwerem. Spróbuj ponownie później.`;
-                this.alert.current.type = Alert.Type.Fail;
-                this.alert.current.visible = true;
-            });
+        console.log(`Sending request to ${url}, body: ${JSON.stringify(data)}`);
+        return await fetch(url, options);
     }
 
 
